@@ -29,16 +29,23 @@ export function Intro() {
   );
 }
 
-export function ImageCard() {
-  const [preview, setPreview] = useState<string | null>(null);
-  const [file, setFile] = useState<File | null>(null);
+interface ImageCardProps {
+  file: File | null;
+  setFile: (file: File | null) => void;
+  preview: string | null;
+  setPreview: (url: string | null) => void;
+}
 
+export function ImageCard({ file, setFile, preview, setPreview }: ImageCardProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (!selectedFile) return;
-
+    const selectedFile = e.target.files?.[0] ?? null;
     setFile(selectedFile);
-    setPreview(URL.createObjectURL(selectedFile));
+
+    if (selectedFile) {
+      setPreview(URL.createObjectURL(selectedFile));
+    } else {
+      setPreview(null);
+    }
   };
 
   return (

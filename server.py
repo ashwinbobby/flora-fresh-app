@@ -4,8 +4,10 @@ import torch.nn as nn
 from torchvision import models, transforms
 from PIL import Image
 import io
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # ================================
 # CONFIG
@@ -14,9 +16,32 @@ NUM_CLASSES = 38
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # ================================
-# LOAD STUDENT MODEL
+# CLASS LABELS
 # ================================
-student = models.resnet18(weights=None)  # same architecture used for training
+CLASS_NAMES = [
+    "Apple Scab", "Apple Black Rot", "Apple Cedar Rust", "Apple Healthy",
+    "Blueberry Healthy",
+    "Cherry Powdery Mildew", "Cherry Healthy",
+    "Corn Cercospora Leaf Spot", "Corn Common Rust", "Corn Northern Leaf Blight", "Corn Healthy",
+    "Grape Black Rot", "Grape Esca", "Grape Leaf Blight", "Grape Healthy",
+    "Orange Huanglongbing",
+    "Peach Bacterial Spot", "Peach Healthy",
+    "Pepper Bell Bacterial Spot", "Pepper Bell Healthy",
+    "Potato Early Blight", "Potato Late Blight", "Potato Healthy",
+    "Raspberry Healthy",
+    "Soybean Healthy",
+    "Squash Powdery Mildew",
+    "Strawberry Leaf Scorch", "Strawberry Healthy",
+    "Tomato Bacterial Spot", "Tomato Early Blight", "Tomato Late Blight", 
+    "Tomato Leaf Mold", "Tomato Septoria Leaf Spot", 
+    "Tomato Spider Mites", "Tomato Target Spot", 
+    "Tomato Yellow Leaf Curl Virus", "Tomato Mosaic Virus", "Tomato Healthy"
+]
+
+# ================================
+# LOAD MODEL
+# ================================
+student = models.resnet18(weights=None)
 student.fc = nn.Linear(student.fc.in_features, NUM_CLASSES)
 student.load_state_dict(torch.load("student_best.pth", map_location=DEVICE))
 student = student.to(DEVICE)
@@ -39,7 +64,7 @@ transform = transforms.Compose([
 def predict():
     if "file" not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
-    
+
     file = request.files["file"]
     img = Image.open(io.BytesIO(file.read())).convert("RGB")
     img = transform(img).unsqueeze(0).to(DEVICE)
@@ -48,8 +73,9 @@ def predict():
         outputs = student(img)
         _, predicted = torch.max(outputs, 1)
         class_id = predicted.item()
+        class_name = CLASS_NAMES[class_id]
 
-    return jsonify({"prediction": int(class_id)})
+    return jsonify({"prediction": class_name, "class_id": class_id})
 
 # ================================
 # RUN

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import formidable from "formidable";
 import fs from "fs";
-import fetch from "node-fetch";
 
+// Disable body parsing to handle raw file
 export const config = {
   api: {
     bodyParser: false,
@@ -15,30 +15,44 @@ export async function POST(req: NextRequest) {
   return new Promise<NextResponse>((resolve, reject) => {
     form.parse(req as any, async (err, fields, files: any) => {
       if (err) {
-        reject(NextResponse.json({ error: err.message }, { status: 500 }));
-        return;
+        return reject(
+          NextResponse.json({ error: err.message }, { status: 500 })
+        );
       }
 
       const file = files.file;
       if (!file) {
-        reject(NextResponse.json({ error: "No file uploaded" }, { status: 400 }));
-        return;
+        return reject(
+          NextResponse.json({ error: "No file uploaded" }, { status: 400 })
+        );
       }
 
-      // Read the uploaded file into a buffer
-      const fileBuffer = fs.readFileSync(file.filepath);
+      try {
+        // Read file into a buffer
+        const buffer = fs.readFileSync(file.filepath);
 
-      // Use FormData to send to Flask
-      const formData = new FormData();
-      formData.append("file", new Blob([fileBuffer]), file.originalFilename);
+        // Prepare FormData to send to Flask
+        const formData = new FormData();
+        formData.append("file", new Blob([buffer]), file.originalFilename);
 
-      const flaskRes = await fetch("http://localhost:5000/predict", {
-        method: "POST",
-        body: formData as any,
-      });
+        // Send to Flask backend
+        const flaskRes = await fetch("http://127.0.0.1:5000/predict", {
+          method: "POST",
+          body: formData as any,
+        });
 
-      const data = await flaskRes.json();
-      resolve(NextResponse.json(data));
+        if (!flaskRes.ok) {
+          const text = await flaskRes.text();
+          throw new Error(text);
+        }
+
+        const data = await flaskRes.json();
+        return resolve(NextResponse.json(data));
+      } catch (e: any) {
+        return reject(
+          NextResponse.json({ error: e.message }, { status: 500 })
+        );
+      }
     });
   });
 }
