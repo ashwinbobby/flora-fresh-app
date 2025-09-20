@@ -18,26 +18,7 @@ DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # ================================
 # CLASS LABELS
 # ================================
-CLASS_NAMES = [
-    "Apple Scab", "Apple Black Rot", "Apple Cedar Rust", "Apple Healthy",
-    "Blueberry Healthy",
-    "Cherry Powdery Mildew", "Cherry Healthy",
-    "Corn Cercospora Leaf Spot", "Corn Common Rust", "Corn Northern Leaf Blight", "Corn Healthy",
-    "Grape Black Rot", "Grape Esca", "Grape Leaf Blight", "Grape Healthy",
-    "Orange Huanglongbing",
-    "Peach Bacterial Spot", "Peach Healthy",
-    "Pepper Bell Bacterial Spot", "Pepper Bell Healthy",
-    "Potato Early Blight", "Potato Late Blight", "Potato Healthy",
-    "Raspberry Healthy",
-    "Soybean Healthy",
-    "Squash Powdery Mildew",
-    "Strawberry Leaf Scorch", "Strawberry Healthy",
-    "Tomato Bacterial Spot", "Tomato Early Blight", "Tomato Late Blight", 
-    "Tomato Leaf Mold", "Tomato Septoria Leaf Spot", 
-    "Tomato Spider Mites", "Tomato Target Spot", 
-    "Tomato Yellow Leaf Curl Virus", "Tomato Mosaic Virus", "Tomato Healthy"
-]
-
+CLASS_NAMES = ['Pepper__bell___Bacterial_spot', 'Pepper__bell___healthy', 'Potato___Early_blight', 'Potato___Late_blight', 'Potato___healthy', 'Tomato_Bacterial_spot', 'Tomato_Early_blight', 'Tomato_Late_blight', 'Tomato_Leaf_Mold', 'Tomato_Septoria_leaf_spot', 'Tomato_Spider_mites_Two_spotted_spider_mite', 'Tomato__Target_Spot', 'Tomato__Tomato_YellowLeaf__Curl_Virus', 'Tomato__Tomato_mosaic_virus', 'Tomato_healthy']
 # ================================
 # LOAD MODEL
 # ================================
